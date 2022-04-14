@@ -1,0 +1,50 @@
+import React from 'react';
+
+class GameBoardRowTile extends React.Component {
+    constructor(props) {
+        super(props);
+    
+    }
+
+
+    /*
+    handleTileChange() {
+        console.log(this.props.rowNumber === this.props.currentRow);
+        console.log(Number(this.props.colNumber) === this.props.currentCol);
+
+        if (
+            (this.props.rowNumber === this.props.currentRow) && 
+            (Number(this.props.colNumber) === this.props.currentCol)
+        ) {
+            this.setState({currentLetter: this.props.pickedLetters[this.props.colNumber]});
+        }
+    }
+    */
+    
+    render() {
+        return (
+        <div className="game-board-row-tile">
+            <div className="square valid">
+                <div className="game-board-row-tile-letter" >{this.props.currentLetter}</div>
+            </div>
+        </div>
+        );
+    }
+}
+
+export default GameBoardRowTile;
+
+/*
+each block should have no letters 
+pick a letter, update next tile with picked letter
+keep going until 4 (aka maxTiles)
+if enter button click
+ check first block
+  is it valid?
+    does it match the current letter for the block? 
+    if no, then grey out title with that letter and grey out the button 
+    if yes, then turn the tile into green and turn all of the valid letters into green, display message based on number of gueses and then display stats screen
+    if letter is in the right position but full word not valid, then kepe letter and make the title yellow
+    if word doesn't exist in word list , then shake tiles and display  a "word deosnt' exist in word list" message  
+
+*/

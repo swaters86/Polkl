@@ -1,38 +1,124 @@
-.App {
+body {
+  font-family: helvetica, arial, verdana; 
+  font-size: 1em;
+}
+
+.container {
+  width: 320px;
+  margin: 0 auto;
+}
+
+.site-header {
   text-align: center;
+  padding: 20px 0;
+}
+.site-name {
+  font-size:  3em;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.game-board {
+
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.keyboard {
+  padding: 10px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.keyboard-row {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.keyboard-key {
+  padding: 10px;
+  margin: 2px;
+  border-radius: 5px;
+  background: #333;
+  color: #fff;
+  text-align: center;
+  text-transform: uppercase;
+  cursor: pointer;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.hide {
+  display: none;
+  visibility: hidden;
+}
+
+.game-board-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* entire container, keeps perspective */
+.game-row-tile {
+  flex: 1 0 21%;
+  margin: 2px;
+  border: 1px #333 solid;
+  text-align: center;
+  font-size: 3em;
+  text-transform: uppercase;
+	perspective: 1000px;
+}
+
+/* flip the pane when hovered */
+.game-row-tile.valid .game-row-tile-inner, 
+.game-row-tile.invalid .game-row-tile-inner,
+.game-row-tile.close .game-row-tile-inner {
+  transform: rotateX(-180deg);
+}
+
+.game-row-tile, .front, .back {
+  width: 74px;
+  height: 75px;
+}
+
+/* flip speed goes here */
+.game-row-tile-inner  {
+  position: relative;
+	transition: 0.6s;
+	transform-style: preserve-3d;
+  transform-origin: 100% 37.5px;
+}
+
+/* hide back of pane during swap */
+.front, .back {
+	position: absolute;
+	top: 0;
+	left: 0;
+  backface-visibility: hidden;
+}
+
+/* front pane, placed above back */
+.front {
+	z-index: 2;
+	/* for firefox 31 */
+	transform: rotateY(0deg);
+  color: #333;
+}
+
+/* back, initially hidden pane */
+.back {
+	transform: rotateX(180deg);
+  color: #fff;
+}
+
+.valid .back {
+  background: #6aaa64;
+  color: fff;
+}
+
+.invalid .back {
+  background: #787c7e;
+  color: fff;
+}
+
+.close .back {
+  background: #c9b458;
+  color: fff;
+}
+
+.letter {
+  padding: 10px;
 }

@@ -4,64 +4,46 @@ import React from 'react';
 import GameBoard from './GameBoard.js';
 import KeyBoard from './KeyBoard.js';
 
-
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.handleSelectedLetter = this.handleSelectedLetter.bind(this);
     this.checkEntry = this.checkEntry.bind(this);
-    this.updateStorage = this.updateStorage.bind(this);
- 
-    const words = [
-      'meth', 'beer', 'sexy', 'shit'
-    ];
 
-    /*
-    const words = [
-      {'text': 'meth', 'id': 1, 'solved': false},
-      {'text': 'beer', 'id': 2, 'solved': false}, 
-      {'text': 'sexy', 'id': 3, 'solved': false}, 
-      {'text': 'shit', 'id': 4, 'solved': false}
-    ];
-    */
+    var getGamesArray = function(start, end) {
+      i = 0;
+      for(var arr=[], dt=new Date(start); dt<=new Date(end); dt.setDate(dt.getDate()+1)){
+        i++;  
 
-    var getDaysArray = function(start, end) {
-      for(var arr=[],dt=new Date(start); dt<=new Date(end); dt.setDate(dt.getDate()+1)){
-          arr.push(new Date(dt));
+        var games = {
+          id: i, 
+          date: new Date(dt)
+        }
+
+        arr.push(JSON.stringify(games));
       }
+
       return arr;
     };
 
-    var daylist = getDaysArray(
-      new Date("2022-01-01"),
-      new Date("2022-07-01")
+    var gamesList = getGamesArray(
+      new Date("2022-04-28"),
+      new Date("2022-05-02")
     );
-    daylist.map((v) => console.log(v.toISOString().slice(0,10)));
 
+    alert('hello');
 
-    let numberOfGames = 50000; 
-    let todaysDate = new Date();
-    let currentGame = 0;
-    let previousGame = localStorage.getItem('previousGame');
-    let lastPlayedDate = localStorage.getItem('lastPlayedDate');
-   
-    if (previousGame === null && lastPlayedDate === null) {
-      alert('first play!');
-      localStorage.setItem('previousGame', '-1');
-      localStorage.setItem('lastPlayedDate', todaysDate.toLocaleDateString());
-    }
-
-    // calculate the current game
-    for(var i=1; i < numberOfGames; i++) {
-      if ((i > Number(previousGame)) && (i < (Number(previousGame) + 2))) {
-          currentGame = i;
-          break; 
-      }
-    }
-
-    // save today's date and the current game to 
-  
+    //daylist.map((v) => console.log(v.toString()));
+    
+    gamesList.map(function(game){
+      console.log(game);
+    });
+    
     let usedWords = [];
+
+    const words = [
+      'meth', 'beer', 'sexy', 'shit'
+    ];
 
     let pickedWord = getRandomWord();
 
@@ -111,29 +93,10 @@ class App extends React.Component {
       currentCol: currentCol,
       gameRowTiles: gameRowTiles,
       maxRows: maxRows,
-      maxCols: maxCols,
-      todaysDate: todaysDate, 
-      lastPlayedDate: lastPlayedDate
+      maxCols: maxCols
     }
   }
 
-
-  updateStorage(win) {
-    /*
-    let previousGame = Number(localStorage.getItem('previousGame')) + 1;
-    let lastPlayedDate = todaysDate.toLocaleDateString();
-    localStorage.setItem('previousGame', previousGame.toString());
-    localStorage.setItem('lastPlayedDate', lastPlayedDate.toString());
-    */
-   
-
-  }
-
-
-
-
-  
- 
   checkEntry() {
     let currentRow = this.state.currentRow;
 
@@ -195,7 +158,6 @@ class App extends React.Component {
        
     } else if (guesses === this.state.maxCols) {
       
-
     }
 
     guessedWords.push(playerWord); 
@@ -207,11 +169,7 @@ class App extends React.Component {
       guessedWords: guessedWords
     });
 
-    this.updateStorage(win);
   } // checkEntry();
-
-
-  
 
   handleSelectedLetter(selectedLetter) {
     let gameRowTiles = this.state.gameRowTiles;
@@ -262,7 +220,6 @@ class App extends React.Component {
           <div><div className="letter">Guesed word: </div>{this.state.gameRowTiles[this.state.currentRow].join('')}</div>
            
           <div><div className="letter">Guesses:</div> {this.state.guesses}</div>
-          <div><div className="letter">{this.state.todaysDate.toLocaleDateString()}</div></div>
           <div><div className="letter">guessed words: {this.state.guessedWords.join(',')}</div></div>
         </header>
         <GameBoard

@@ -9,6 +9,12 @@ class App extends React.Component {
     super(props);
     this.handleSelectedLetter = this.handleSelectedLetter.bind(this);
     this.checkEntry = this.checkEntry.bind(this);
+    this.saveUserStats = this.saveUserStats.bind(this);
+    this.fetchUserStats = this.fetchUserStats.bind(this);
+
+    const words = [
+      'meth', 'beer', 'sexy', 'shit'
+    ];
 
     var getGamesArray = function(start, end) {
       i = 0;
@@ -17,35 +23,38 @@ class App extends React.Component {
 
         var games = {
           id: i, 
-          date: new Date(dt)
+          date: new Date(dt).toLocaleDateString(),
+          word: words[i-1]
         }
 
-        arr.push(JSON.stringify(games));
+        arr.push(games);
       }
 
       return arr;
     };
 
     var gamesList = getGamesArray(
-      new Date("2022-04-28"),
-      new Date("2022-05-02")
+      new Date("04-28-2022"),
+      new Date("05-01-2022")
     );
 
-    alert('hello');
+    let todayDate = new Date(Date.now()).toLocaleDateString(); 
 
-    //daylist.map((v) => console.log(v.toString()));
-    
-    gamesList.map(function(game){
+    let currentGame = 0;
+    let pickedWord = '';
+    gamesList.map(function(game) {
       console.log(game);
+      if (game.date === todayDate) {
+        currentGame = game.id;
+        pickedWord = game.word;
+      }
     });
+
+    this.saveUserStats(currentGame, true, ['push', 'dear', 'meth']);
+
+    console.log('user stats is:', this.fetchUserStats());
     
     let usedWords = [];
-
-    const words = [
-      'meth', 'beer', 'sexy', 'shit'
-    ];
-
-    let pickedWord = getRandomWord();
 
     const keys1 = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'];
 
@@ -64,13 +73,6 @@ class App extends React.Component {
       gameRowTiles.push(row);
     }
 
-    function getRandomWord() {
-      let word = words[Math.floor(Math.random() * words.length)];
-      usedWords.push(word);
-
-      return word;
-    }
-
     let guesses = 0;
 
     let guessedWords = [];
@@ -83,6 +85,7 @@ class App extends React.Component {
       words: words,
       usedWords: usedWords,
       pickedWord: pickedWord,
+      currentGame: currentGame,
       keys1: keys1,
       keys2: keys2,
       keys3: keys3,
@@ -97,6 +100,25 @@ class App extends React.Component {
     }
   }
 
+  saveUserStats(gameId, won, guessedWords) {
+    let stat = {
+      gameId: gameId,
+      won: won, 
+      guessedWords: guessedWords
+    }
+
+    let userStats = this.fetchUserStats() != undefined ? this.fetchUserStats() : [];
+
+    userStats.push(stat);
+
+    localStorage.setItem('userStats', JSON.stringify(userStats));
+  }
+
+  fetchUserStats() {
+    let userStats = JSON.parse(localStorage.getItem('userStats'));
+    return userStats;
+  }
+
   checkEntry() {
     let currentRow = this.state.currentRow;
 
@@ -104,15 +126,14 @@ class App extends React.Component {
       `[data-current-row="${currentRow}"]`
     );
 
-    let win = false;
-
     let playerWord = this.state.gameRowTiles[currentRow].join('');
     let wordOfTheDay = this.state.pickedWord;
     let guessedWords = this.state.guessedWords;
     
     let guesses = this.state.guesses;
 
-    if (
+    // If guessed word = word of the day and meets character length
+    if ( 
         (playerWord === wordOfTheDay) && 
         (playerWord.length === this.state.maxCols)
       ) {
@@ -125,8 +146,9 @@ class App extends React.Component {
         }, i * 650);  
       });
 
-      win = true;
+      this.saveUserStats(this.state.currentGame, true, this.state.guessedWords);
       
+    // If guessed word != the word of the day but still meets character length (still valid guess)
     } else if (
       (playerWord !== wordOfTheDay) && 
       (playerWord.length === this.state.maxCols)
@@ -134,11 +156,8 @@ class App extends React.Component {
       tiles.forEach((tile, i) => {
           let cssClass = '';
 
-          let playerWordArray = playerWord.split('');
           let wordOfTheDayArray = wordOfTheDay.split('');
           let letterEntry = wordOfTheDayArray[Number(tile.dataset.currentCol) - 1];
-          
-          console.log(wordOfTheDayArray.includes(`${tile.dataset.currentLetter}`));
 
           if (letterEntry === tile.dataset.currentLetter) {
             cssClass = 'valid';
@@ -153,9 +172,10 @@ class App extends React.Component {
           }, i * 650);
       });
 
-
+    // guessed word doesn't meet character length (less than number of columns/tiles available)
     } else if (playerWord.length !== this.state.maxCols) {
-       
+
+    // TODO: verify if this should be tis.state.maxRows
     } else if (guesses === this.state.maxCols) {
       
     }
@@ -168,6 +188,7 @@ class App extends React.Component {
       currentCol: 0,
       guessedWords: guessedWords
     });
+
 
   } // checkEntry();
 
@@ -203,8 +224,7 @@ class App extends React.Component {
         currentCol: nextCol - 1
       });
     } else if (guesses === maxRows) {
-      alert('Sorry, you did not get todays Polkl, please try again tomorrow');
-      // display today's word here!
+      this.saveUserStats(this.state.currentGame, false, this.state.guessedWords);
     }
 
     
@@ -218,7 +238,7 @@ class App extends React.Component {
           <p>A wordle-like game about Polk County, FL - home to the finest of Floridians!</p>
           <div><div className="letter">Word of the Day: </div>{this.state.pickedWord}</div>
           <div><div className="letter">Guesed word: </div>{this.state.gameRowTiles[this.state.currentRow].join('')}</div>
-           
+          <div><div className="letter">Current Game</div> {this.state.currentGame}</div>
           <div><div className="letter">Guesses:</div> {this.state.guesses}</div>
           <div><div className="letter">guessed words: {this.state.guessedWords.join(',')}</div></div>
         </header>
@@ -232,7 +252,6 @@ class App extends React.Component {
           key3={this.state.keys3}
           onSelectedLetter={this.handleSelectedLetter}
         />
-
       </div>
     );
   }

@@ -96,7 +96,9 @@ class App extends React.Component {
       currentCol: currentCol,
       gameRowTiles: gameRowTiles,
       maxRows: maxRows,
-      maxCols: maxCols
+      maxCols: maxCols,
+      showModal: false,
+      shareText: '',
     }
   }
 
@@ -137,16 +139,26 @@ class App extends React.Component {
         (playerWord === wordOfTheDay) && 
         (playerWord.length === this.state.maxCols)
       ) {
-       
-      let cssClass = 'valid';
+      let newGuessedWords = [...guessedWords, playerWord];
+      let newGuesses = guesses + 1;
 
+      let cssClass = 'valid';
       tiles.forEach((tile, i) => {
         setTimeout(function() {
           tile.classList.add(cssClass)
         }, i * 650);  
       });
 
-      this.saveUserStats(this.state.currentGame, true, this.state.guessedWords);
+      const shareText = this.generateShareText(currentRow + 1); // Number of guesses
+      this.saveUserStats(this.state.currentGame, true, newGuessedWords);
+      this.setState({
+        guessedWords: newGuessedWords,
+        guesses: newGuesses,
+        gameOver: true,
+        showModal: true,
+        shareText: shareText,
+      });
+      return;
       
     // If guessed word != the word of the day but still meets character length (still valid guess)
     } else if (
@@ -230,6 +242,19 @@ class App extends React.Component {
     
   }
 
+  generateShareText(guessCount) {
+    // Build a Wordle-style grid using your guesses and the answer
+    const { guessedWords, pickedWord, maxCols } = this.state;
+    let grid = guessedWords.map(word => {
+      return word.split('').map((letter, i) => {
+        if (letter === pickedWord[i]) return '🟩';
+        if (pickedWord.includes(letter)) return '🟨';
+        return '⬛';
+      }).join('');
+    }).join('\n');
+    return `Polkl ${guessCount}/${this.state.maxRows}\n${grid}\nPlay: ${window.location.href}`;
+  }
+
   render() {
     return (
       <div className="container">
@@ -240,6 +265,7 @@ class App extends React.Component {
           <div>
             <div className="letter">Guesed word: </div>
             {
+              this.state.currentRow < this.state.gameRowTiles.length &&
               this.state.gameRowTiles[this.state.currentRow]
                 ? this.state.gameRowTiles[this.state.currentRow].join('')
                 : ''
@@ -259,6 +285,39 @@ class App extends React.Component {
           key3={this.state.keys3}
           onSelectedLetter={this.handleSelectedLetter}
         />
+        {this.state.showModal && (
+          <div className="modal-overlay">
+            <div className="modal">
+              <h2>Congratulations!</h2>
+              <p>You guessed today's word!</p>
+              <textarea
+                readOnly
+                value={this.state.shareText}
+                style={{ width: '100%', height: '80px' }}
+              />
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(this.state.shareText);
+                  alert('Copied to clipboard!');
+                }}
+              >
+                Copy Result
+              </button>
+              <a
+                href={`sms:&body=${encodeURIComponent(this.state.shareText)}`}
+                style={{ marginLeft: '10px' }}
+              >
+                Share via SMS
+              </a>
+              <button
+                style={{ marginLeft: '10px' }}
+                onClick={() => this.setState({ showModal: false })}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

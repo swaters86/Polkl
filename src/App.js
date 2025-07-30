@@ -12,47 +12,63 @@ class App extends React.Component {
     this.saveUserStats = this.saveUserStats.bind(this);
     this.fetchUserStats = this.fetchUserStats.bind(this);
 
-    const words = [
-      'meth', 'beer', 'sexy', 'shit'
-    ];
+    const words = ['loud', 'coke', 'test', 'deer'];
 
-    var getGamesArray = function(start, end) {
-      i = 0;
-      for(var arr=[], dt=new Date(start); dt<=new Date(end); dt.setDate(dt.getDate()+1)){
-        i++;  
+    function getGamesArray(start, end) {
+      const games = [];
+      const current = new Date(start);
+      const lastDay = new Date(end);
 
-        var games = {
-          id: i, 
-          date: new Date(dt).toLocaleDateString(),
-          word: words[i-1]
-        }
+      // zero out time so comparisons are just date-to-date
+      current.setHours(0, 0, 0, 0);
+      lastDay.setHours(0, 0, 0, 0);
 
-        arr.push(games);
+      let id = 1;
+      while (current <= lastDay) {
+        games.push({
+          id,
+          date: current.toISOString().split('T')[0],
+          word: words[id - 1] || ''
+        });
+        id++;
+        current.setDate(current.getDate() + 1);
       }
+      return games;
+    }
 
-      return arr;
-    };
-
-    var gamesList = getGamesArray(
-      new Date("07-26-2025"),
-      new Date("07-29-2025")
+    // === set up your game list ===
+    // You can also pass Date objects,
+    // or ISO strings -- both are safe.
+    const gamesList = getGamesArray(
+      '2025-07-26',  // ISO format always parses the same
+      '2025-07-30'
     );
 
-    let todayDate = new Date(Date.now()).toLocaleDateString(); 
+    // get today in ISO format
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayKey = today.toISOString().split('T')[0];
 
     let currentGame = 0;
     let pickedWord = '';
-    gamesList.map(function(game) {
-      console.log(game);
-      if (game.date === todayDate) {
-        currentGame = game.id;
-        pickedWord = game.word;
-      }
-    });
+
+    const todayGame = gamesList.find(g => g.date === todayKey);
+
+    if (todayGame) {
+      currentGame = todayGame.id;
+      pickedWord   = todayGame.word;
+    } else if (gamesList.length) {
+      // fallback to the first entry
+      currentGame = gamesList[0].id;
+      pickedWord  = gamesList[0].word;
+    }
+
+    // now `currentGame` and `pickedWord` are always defined
+    console.log({ currentGame, pickedWord });
 
     this.saveUserStats(currentGame, true, ['push', 'dear', 'meth']);
 
-    console.log('user stats is:', this.fetchUserStats());
+    //console.log('user stats is:', this.fetchUserStats());
     
     let usedWords = [];
 
@@ -139,6 +155,7 @@ class App extends React.Component {
         (playerWord === wordOfTheDay) && 
         (playerWord.length === this.state.maxCols)
       ) {
+
       let newGuessedWords = [...guessedWords, playerWord];
       let newGuesses = guesses + 1;
       let cssClass = 'valid';

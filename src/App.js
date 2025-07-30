@@ -12,6 +12,12 @@ class App extends React.Component {
     this.saveUserStats = this.saveUserStats.bind(this);
     this.fetchUserStats = this.fetchUserStats.bind(this);
 
+    this.state = { showModal: false , showResultsButton: false };
+
+    // either bind…
+    this.handleShowModal = this.handleShowModal.bind(this);
+    this.handleHideModal = this.handleHideModal.bind(this);
+
     const words = ['loud', 'coke', 'test', 'deer'];
 
     function getGamesArray(start, end) {
@@ -114,6 +120,7 @@ class App extends React.Component {
       maxRows: maxRows,
       maxCols: maxCols,
       showModal: false,
+      showResultsButton: false,
       shareText: '',
     }
   }
@@ -175,6 +182,7 @@ class App extends React.Component {
           guesses: newGuesses,
           gameOver: true,
           showModal: true,
+          showResultsButton: true,
           shareText: shareText,
         });
       }, tiles.length * 650);
@@ -259,8 +267,6 @@ class App extends React.Component {
     } else if (guesses === maxRows) {
       this.saveUserStats(this.state.currentGame, false, this.state.guessedWords);
     }
-
-    
   }
 
   generateShareText(guessedWords, pickedWord, maxCols) {
@@ -294,12 +300,27 @@ class App extends React.Component {
     return `Polkl ${guessedWords.length}/${this.state.maxRows}\n${grid}\nPlay: ${window.location.href}`;
   }
 
+  handleShowModal() {
+    this.setState({ showModal: true });
+  }
+
+  handleHideModal() {
+    this.setState({ showModal: false });
+  }
+
   render() {
     return (
       <div className="container">
         <header className="site-header">
           <h1 className="site-name">Polkl</h1>
           <p>A wordle-like game about Polk County, FL - home to the finest of Floridians!</p>
+
+          {this.state.showResultsButton && !this.state.showModal && (
+            <button onClick={this.handleShowModal}>
+              Results
+            </button>
+          )}
+
           <div><div className="letter">Word of the Day: </div>{this.state.pickedWord}</div>
           <div>
             <div className="letter">Guesed word: </div>
@@ -314,16 +335,19 @@ class App extends React.Component {
           <div><div className="letter">Guesses:</div> {this.state.guesses}</div>
           <div><div className="letter">guessed words: {this.state.guessedWords.join(',')}</div></div>
         </header>
+
         <GameBoard
           gameRows={this.state.gameRows}
           gameRowTiles={this.state.gameRowTiles}
         />
+
         <KeyBoard
           key1={this.state.keys1}
           key2={this.state.keys2}
           key3={this.state.keys3}
           onSelectedLetter={this.handleSelectedLetter}
         />
+
         {this.state.showModal && (
           <div className="modal-overlay">
             <div className="modal">

@@ -34,8 +34,8 @@ class App extends React.Component {
     };
 
     var gamesList = getGamesArray(
-      new Date("04-28-2022"),
-      new Date("05-01-2022")
+      new Date("07-26-2025"),
+      new Date("07-29-2025")
     );
 
     let todayDate = new Date(Date.now()).toLocaleDateString(); 
@@ -237,7 +237,14 @@ class App extends React.Component {
           <h1 className="site-name">Polkl</h1>
           <p>A wordle-like game about Polk County, FL - home to the finest of Floridians!</p>
           <div><div className="letter">Word of the Day: </div>{this.state.pickedWord}</div>
-          <div><div className="letter">Guesed word: </div>{this.state.gameRowTiles[this.state.currentRow].join('')}</div>
+          <div>
+            <div className="letter">Guesed word: </div>
+            {
+              this.state.gameRowTiles[this.state.currentRow]
+                ? this.state.gameRowTiles[this.state.currentRow].join('')
+                : ''
+            }
+          </div>
           <div><div className="letter">Current Game</div> {this.state.currentGame}</div>
           <div><div className="letter">Guesses:</div> {this.state.guesses}</div>
           <div><div className="letter">guessed words: {this.state.guessedWords.join(',')}</div></div>

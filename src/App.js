@@ -12,11 +12,20 @@ class App extends React.Component {
     this.saveUserStats = this.saveUserStats.bind(this);
     this.fetchUserStats = this.fetchUserStats.bind(this);
 
-    this.state = { showModal: false , showResultsButton: false };
+    this.state = { 
+      showModal: false, 
+      showResultsButton: false ,
+      userStats:    this.fetchUserStats() || [],
+      showHistory:  false
+    };
 
     // either bind…
     this.handleShowModal = this.handleShowModal.bind(this);
     this.handleHideModal = this.handleHideModal.bind(this);
+
+    this.handleShowHistory = this.handleShowHistory.bind(this);
+    this.handleHideHistory = this.handleHideHistory.bind(this);
+    
 
     const words = ['loud', 'coke', 'test', 'deer'];
 
@@ -71,9 +80,7 @@ class App extends React.Component {
 
     // now `currentGame` and `pickedWord` are always defined
     console.log({ currentGame, pickedWord });
-
-    this.saveUserStats(currentGame, true, ['push', 'dear', 'meth']);
-
+    
     //console.log('user stats is:', this.fetchUserStats());
     
     let usedWords = [];
@@ -103,6 +110,7 @@ class App extends React.Component {
 
     let currentCol = 0;
 
+    /*
     this.state = {
       words: words,
       usedWords: usedWords,
@@ -123,8 +131,31 @@ class App extends React.Component {
       showResultsButton: false,
       shareText: '',
     }
+      */
+    Object.assign(this.state, {
+        words:           words,
+        usedWords:       usedWords,
+        pickedWord:      pickedWord,
+        currentGame:     currentGame,
+        keys1:           keys1,
+        keys2:           keys2,
+        keys3:           keys3,
+        gameRows:        gameRows,
+        guesses:         guesses,
+        guessedWords:    guessedWords,
+        currentRow:      currentRow,
+        currentCol:      currentCol,
+        gameRowTiles:    gameRowTiles,
+        maxRows:         maxRows,
+        maxCols:         maxCols,
+        showModal:       false,
+        showResultsButton: false,
+        shareText:       '',
+        // <— note: we no longer clobber userStats or showHistory
+      });
   }
 
+  /*
   saveUserStats(gameId, won, guessedWords) {
     let stat = {
       gameId: gameId,
@@ -137,6 +168,23 @@ class App extends React.Component {
     userStats.push(stat);
 
     localStorage.setItem('userStats', JSON.stringify(userStats));
+  }
+    */
+
+  saveUserStats(gameId, won, guessedWords) {
+    const stat = {
+      gameId,
+      won,
+      guessedWords,
+      word: this.state.pickedWord    // <— save it too!
+    };
+
+    const userStats = this.fetchUserStats() || [];
+    userStats.push(stat);
+    localStorage.setItem('userStats', JSON.stringify(userStats));
+
+    // also mirror into React state
+    this.setState({ userStats });
   }
 
   fetchUserStats() {
@@ -308,6 +356,13 @@ class App extends React.Component {
     this.setState({ showModal: false });
   }
 
+  handleShowHistory() {
+    this.setState({ showHistory: true });
+  }
+  handleHideHistory() {
+    this.setState({ showHistory: false });
+  }
+
   render() {
     return (
       <div className="container">
@@ -320,6 +375,16 @@ class App extends React.Component {
               Results
             </button>
           )}
+
+          {/* only once any results exist, and when no other modal is open */}
+          {this.state.userStats.length > 0 && 
+          !this.state.showModal && 
+          !this.state.showHistory && (
+            <button onClick={this.handleShowHistory}>
+              View History
+            </button>
+          )}
+
 
           <div><div className="letter">Word of the Day: </div>{this.state.pickedWord}</div>
           <div>
@@ -348,6 +413,7 @@ class App extends React.Component {
           onSelectedLetter={this.handleSelectedLetter}
         />
 
+        {/* RESULTS MODAL */}
         {this.state.showModal && (
           <div className="modal-overlay">
             <div className="modal">
@@ -381,9 +447,51 @@ class App extends React.Component {
             </div>
           </div>
         )}
+
+        {/* HISTORY MODAL */}
+        {this.state.showHistory && (
+          <div className="modal-overlay">
+            <div className="modal">
+              <h2>Results History</h2>
+              <ul className="history-list">
+                {this.state.userStats.map((stat, i) => {
+                  // generate share text on the fly
+                  const txt = this.generateShareText(
+                    stat.guessedWords,
+                    stat.word,
+                    this.state.maxCols
+                  );
+
+                  return (
+                    <li key={i}>
+                      <strong>Game #{stat.gameId}:</strong>{' '}
+                      {stat.won ? 'Win' : 'Loss'} in {stat.guessedWords.length} guess
+                      {stat.guessedWords.length > 1 ? 'es' : ''}.
+                      <button
+                        style={{ marginLeft: '8px' }}
+                        onClick={() => {
+                          navigator.clipboard.writeText(txt);
+                          alert('Copied!');
+                        }}
+                      >
+                        Copy Share
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+              <button onClick={this.handleHideHistory}>Close</button>
+            </div>
+          </div>
+        )}
+        <footer className="site-footer">
+          <p>Made with ❤️ by <a href="https://stevenwaters.com">Steven Waters</a></p>
+        </footer>
       </div>
     );
   }
+
+  
 }
 
 export default App;

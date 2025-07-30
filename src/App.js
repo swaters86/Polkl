@@ -141,23 +141,27 @@ class App extends React.Component {
       ) {
       let newGuessedWords = [...guessedWords, playerWord];
       let newGuesses = guesses + 1;
-
       let cssClass = 'valid';
+
       tiles.forEach((tile, i) => {
         setTimeout(function() {
           tile.classList.add(cssClass)
-        }, i * 650);  
+        }, i * 650);
       });
 
-      const shareText = this.generateShareText(currentRow + 1); // Number of guesses
-      this.saveUserStats(this.state.currentGame, true, newGuessedWords);
-      this.setState({
-        guessedWords: newGuessedWords,
-        guesses: newGuesses,
-        gameOver: true,
-        showModal: true,
-        shareText: shareText,
-      });
+      // Show modal after last tile flips
+      setTimeout(() => {
+        const shareText = this.generateShareText(newGuessedWords, wordOfTheDay, this.state.maxCols);
+        this.saveUserStats(this.state.currentGame, true, newGuessedWords);
+        this.setState({
+          guessedWords: newGuessedWords,
+          guesses: newGuesses,
+          gameOver: true,
+          showModal: true,
+          shareText: shareText,
+        });
+      }, tiles.length * 650);
+
       return;
       
     // If guessed word != the word of the day but still meets character length (still valid guess)
@@ -242,17 +246,35 @@ class App extends React.Component {
     
   }
 
-  generateShareText(guessCount) {
-    // Build a Wordle-style grid using your guesses and the answer
-    const { guessedWords, pickedWord, maxCols } = this.state;
+  generateShareText(guessedWords, pickedWord, maxCols) {
+    // Wordle-style coloring logic
     let grid = guessedWords.map(word => {
-      return word.split('').map((letter, i) => {
-        if (letter === pickedWord[i]) return '🟩';
-        if (pickedWord.includes(letter)) return '🟨';
-        return '⬛';
-      }).join('');
+      let wordArr = pickedWord.split('');
+      let guessArr = word.split('');
+      let status = Array(maxCols).fill('⬛');
+      let used = Array(maxCols).fill(false);
+
+      // First pass: correct position
+      for (let i = 0; i < maxCols; i++) {
+        if (guessArr[i] === wordArr[i]) {
+          status[i] = '🟩';
+          used[i] = true;
+        }
+      }
+      // Second pass: correct letter, wrong position
+      for (let i = 0; i < maxCols; i++) {
+        if (status[i] === '🟩') continue;
+        for (let j = 0; j < maxCols; j++) {
+          if (!used[j] && guessArr[i] === wordArr[j]) {
+            status[i] = '🟨';
+            used[j] = true;
+            break;
+          }
+        }
+      }
+      return status.join('');
     }).join('\n');
-    return `Polkl ${guessCount}/${this.state.maxRows}\n${grid}\nPlay: ${window.location.href}`;
+    return `Polkl ${guessedWords.length}/${this.state.maxRows}\n${grid}\nPlay: ${window.location.href}`;
   }
 
   render() {

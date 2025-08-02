@@ -57,38 +57,28 @@ class App extends React.Component {
     this.handleShowHistory = this.handleShowHistory.bind(this);
     this.handleHideHistory = this.handleHideHistory.bind(this);
   
-
+    // Static start date for the game series
+    const staticStartDate = '2025-08-02'; // MM-DD-YYYY (8/2/25)
     const words = ['loud', 'coke', 'test', 'deer'];
 
-    function getGamesArray(start, end) {
+    // Generate a static mapping of dates to words based on the static start date and word list
+    function getGamesListFromWords(startDate, wordsArr) {
       const games = [];
-      const current = new Date(start);
-      const lastDay = new Date(end);
-
-      // zero out time so comparisons are just date-to-date
+      const current = new Date(startDate);
       current.setHours(0, 0, 0, 0);
-      lastDay.setHours(0, 0, 0, 0);
-
-      let id = 1;
-      while (current <= lastDay) {
+      for (let i = 0; i < wordsArr.length; i++) {
         games.push({
-          id,
+          id: i + 1,
           date: current.toISOString().split('T')[0],
-          word: words[id - 1] || ''
+          word: wordsArr[i]
         });
-        id++;
         current.setDate(current.getDate() + 1);
       }
       return games;
     }
 
-    // === set up your game list ===
-    // You can also pass Date objects,
-    // or ISO strings -- both are safe.
-    const gamesList = getGamesArray(
-      '2025-07-26',  // ISO format always parses the same
-      '2025-07-30'
-    );
+    // This array will always be the same for a given word list and start date
+    const gamesList = getGamesListFromWords(staticStartDate, words);
 
     // get today in ISO format
     const today = new Date();

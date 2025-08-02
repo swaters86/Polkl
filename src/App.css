@@ -1,7 +1,17 @@
 body {
   font-family: helvetica, arial, verdana; 
   font-size: 1em;
-  background: #fffff8
+  background: #000;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;   
 }
 
 .container {
@@ -13,12 +23,14 @@ body {
   text-align: center;
   padding: 20px 0;
 }
-.site-name {
-  font-size:  3em;
+
+.site-header h1 {
+  margin: 0;
+  font-size: 3em;
 }
 
-.game-board {
-
+.site-name {
+  font-size:  3em;
 }
 
 .keyboard {
@@ -60,7 +72,7 @@ body {
   text-align: center;
   font-size: 3em;
   text-transform: uppercase;
-	perspective: 1000px;
+  perspective: 1000px;
 }
 
 /* flip the pane when hovered */
@@ -78,30 +90,30 @@ body {
 /* flip speed goes here */
 .game-row-tile-inner  {
   position: relative;
-	transition: 0.6s;
-	transform-style: preserve-3d;
+  transition: 0.6s;
+  transform-style: preserve-3d;
   transform-origin: 100% 37.5px;
 }
 
 /* hide back of pane during swap */
 .front, .back {
-	position: absolute;
-	top: 0;
-	left: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
   backface-visibility: hidden;
 }
 
 /* front pane, placed above back */
 .front {
-	z-index: 2;
-	/* for firefox 31 */
-	transform: rotateY(0deg);
+  z-index: 2;
+  /* for firefox 31 */
+  transform: rotateY(0deg);
   color: #333;
 }
 
 /* back, initially hidden pane */
 .back {
-	transform: rotateX(180deg);
+  transform: rotateX(180deg);
   color: #fff;
 }
 
@@ -121,6 +133,7 @@ body {
 }
 
 .letter {
+  color:#fff;
   padding: 10px;
 }
 
@@ -133,11 +146,46 @@ body {
   align-items: center;
   justify-content: center;
 }
+
 .modal {
   background: #fff;
-  padding: 2em;
+  color: #000;
+  padding:.25em 2em 2em 2em;
   border-radius: 10px;
   max-width: 90vw;
   box-shadow: 0 2px 16px rgba(0,0,0,0.3);
   text-align: center;
+}
+
+.modal .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: red;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.modal .history-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.btn {
+  padding: 10px 20px;
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn:hover, 
+.keyboard-key:hover, 
+.modal .close-btn:hover {
+  background: #555;
+  color: #fff;
 }

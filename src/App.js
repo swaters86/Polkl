@@ -402,22 +402,21 @@ class App extends React.Component {
       <div className="container">
         <header className="site-header">
           <h1 className="site-name">Polkl</h1>
-          <h4>(POH-kul)</h4>
+          <span>(POH-kul)</span>
           <p>A wordle-like game about Polk County, FL - home to the finest of Floridians!</p>
 
           {this.state.showResultsButton && !this.state.showModal && (
-            <button onClick={this.handleShowModal}>
+            <button className="btn" onClick={this.handleShowModal}>
               Results
             </button>
           )}
-
 
           {/* only once any results exist, and when no other modal is open */}
           {this.state.userStats.length > 0 &&
             !this.state.showModal &&
             !this.state.showHistory && (
               <>
-                <button onClick={this.handleShowHistory}>
+                <button className="btn" onClick={this.handleShowHistory}>
                   View History
                 </button>
                 {/* Show Retry button only if last game was a loss, the board is not currently being played, and tries remain */}
@@ -430,6 +429,7 @@ class App extends React.Component {
                   if (isLoss && this.state.triesLeft > 0) {
                     return (
                       <button
+                        className="btn"
                         style={{ marginLeft: '10px', background: '#4caf50', color: 'white' }}
                         onClick={() => {
                           // Remove tile coloring classes from all tiles
@@ -526,6 +526,7 @@ class App extends React.Component {
                 style={{ width: '100%', height: '80px' }}
               />
               <button
+                className="btn"
                 onClick={() => {
                   navigator.clipboard.writeText(this.state.shareText);
                   alert('Copied to clipboard!');
@@ -534,12 +535,14 @@ class App extends React.Component {
                 Copy Result
               </button>
               <a
+                className="btn"
                 href={`sms:&body=${encodeURIComponent(this.state.shareText)}`}
                 style={{ marginLeft: '10px' }}
               >
                 Share via SMS
               </a>
               <button
+                className="btn close-btn"
                 style={{ marginLeft: '10px' }}
                 onClick={() => this.setState({ showModal: false })}
               >
@@ -549,6 +552,7 @@ class App extends React.Component {
                 <>
                   {this.state.triesLeft > 0 && (
                     <button
+                      className="btn"
                       style={{ marginLeft: '10px', background: '#4caf50', color: 'white' }}
                       onClick={() => {
                         // Remove tile coloring classes from all tiles
@@ -603,6 +607,7 @@ class App extends React.Component {
                       {stat.won ? 'Win' : 'Loss'} in {stat.guessedWords.length} guess
                       {stat.guessedWords.length > 1 ? 'es' : ''}.
                       <button
+                        className="btn"
                         style={{ marginLeft: '8px' }}
                         onClick={() => {
                           navigator.clipboard.writeText(txt);
@@ -615,7 +620,7 @@ class App extends React.Component {
                   );
                 })}
               </ul>
-              <button onClick={this.handleHideHistory}>Close</button>
+              <button className="btn" onClick={this.handleHideHistory}>Close</button>
             </div>
           </div>
         )}

@@ -56,7 +56,7 @@ class App extends React.Component {
 
     this.handleShowHistory = this.handleShowHistory.bind(this);
     this.handleHideHistory = this.handleHideHistory.bind(this);
-    
+  
 
     const words = ['loud', 'coke', 'test', 'deer'];
 
@@ -657,13 +657,11 @@ class App extends React.Component {
           </div>
         )}
         <footer className="site-footer">
-          <p>Made with ❤️ by <a href="https://stevenwaters.com">Steven Waters</a></p>
+          <p>Made in Florida by <a href="https://stevenwaters.com">Steven Waters</a></p>
         </footer>
       </div>
     );
   }
-
-  
 }
 
 export default App;

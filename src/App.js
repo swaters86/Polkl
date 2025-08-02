@@ -501,7 +501,7 @@ class App extends React.Component {
               </>
             )}
 
-
+          {/*
           <div><div className="letter">Word of the Day: </div>{this.state.pickedWord}</div>
           <div>
             <div className="letter">Guesed word: </div>
@@ -514,9 +514,9 @@ class App extends React.Component {
           </div>
           <div><div className="letter">Current Game</div> {this.state.currentGame}</div>
           <div><div className="letter">Guesses:</div> {this.state.guesses}</div>
-          <div><div className="letter">guessed words: {this.state.guessedWords.join(',')}</div></div>
+          <div><div className="letter">Guessed Words: {this.state.guessedWords.join(',')}</div></div>
+          */}
         </header>
-
 
         {this.state.triesLeft === 0 ? (
           <div style={{textAlign: 'center', margin: '2em', fontSize: '1.3em', color: '#b71c1c'}}>

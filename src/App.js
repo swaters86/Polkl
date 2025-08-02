@@ -509,80 +509,83 @@ class App extends React.Component {
         {this.state.showModal && (
           <div className="modal-overlay">
             <div className="modal">
-              {this.state.guessedWords[this.state.guessedWords.length - 1] === this.state.pickedWord ? (
-                <>
-                  <h2>Congratulations!</h2>
-                  <p>You guessed today's word!</p>
-                </>
-              ) : (
-                <>
-                  <h2>Sorry!</h2>
-                  <p>Sorry you didn't guess today's word, but you can try again.</p>
-                </>
-              )}
+              {(() => {
+                // Always show results, even after closing and reopening
+                const lastGuessed = this.state.guessedWords[this.state.guessedWords.length - 1];
+                const isWin = lastGuessed === this.state.pickedWord;
+                return isWin ? (
+                  <>
+                    <h2>Congratulations!</h2>
+                    <p>You guessed today's word!</p>
+                  </>
+                ) : (
+                  <>
+                    <h2>Sorry!</h2>
+                    <p>Sorry you didn't guess today's word, but you can try again.</p>
+                  </>
+                );
+              })()}
               <textarea
                 readOnly
                 value={this.state.shareText}
                 style={{ width: '100%', height: '80px' }}
               />
-              <button
-                className="btn"
-                onClick={() => {
-                  navigator.clipboard.writeText(this.state.shareText);
-                  alert('Copied to clipboard!');
-                }}
-              >
-                Copy Result
-              </button>
-              <a
-                className="btn"
-                href={`sms:&body=${encodeURIComponent(this.state.shareText)}`}
-                style={{ marginLeft: '10px' }}
-              >
-                Share via SMS
-              </a>
-              <button
-                className="btn close-btn"
-                style={{ marginLeft: '10px' }}
-                onClick={() => this.setState({ showModal: false })}
-              >
-                Close
-              </button>
-              {this.state.guessedWords[this.state.guessedWords.length - 1] !== this.state.pickedWord && (
-                <>
-                  {this.state.triesLeft > 0 && (
-                    <button
-                      className="btn"
-                      style={{ marginLeft: '10px', background: '#4caf50', color: 'white' }}
-                      onClick={() => {
-                        // Remove tile coloring classes from all tiles
-                        const classesToRemove = ['valid', 'invalid', 'close'];
-                        const tiles = document.querySelectorAll('[data-current-row]');
-                        tiles.forEach(tile => {
-                          classesToRemove.forEach(cls => tile.classList.remove(cls));
-                        });
-                        // Reset the gameboard for retry
-                        let resetTiles = [];
-                        for (let i = 0; i < this.state.maxRows; i++) {
-                          resetTiles.push([null, null, null, null]);
-                        }
-                        this.setState({
-                          showModal: false,
-                          guesses: 0,
-                          guessedWords: [],
-                          currentRow: 0,
-                          currentCol: 0,
-                          gameRowTiles: resetTiles,
-                          gameOver: false,
-                          shareText: '',
-                        });
-                      }}
-                    >
-                      Retry ({this.state.triesLeft} left today)
-                    </button>
-                  )}
-                </>
-              )}
+              <div style={{ marginTop: '18px' }}>
+                <button
+                  className="btn"
+                  onClick={() => {
+                    navigator.clipboard.writeText(this.state.shareText);
+                    alert('Copied to clipboard!');
+                  }}
+                >
+                  Copy Result
+                </button>
+                <a
+                  className="btn"
+                  href={`sms:&body=${encodeURIComponent(this.state.shareText)}`}
+                  style={{ marginLeft: '10px' }}
+                >
+                  Share via SMS
+                </a>
+                {this.state.guessedWords[this.state.guessedWords.length - 1] !== this.state.pickedWord && this.state.triesLeft > 0 && (
+                  <button
+                    className="btn"
+                    style={{ marginLeft: '10px', background: '#4caf50', color: 'white' }}
+                    onClick={() => {
+                      // Remove tile coloring classes from all tiles
+                      const classesToRemove = ['valid', 'invalid', 'close'];
+                      const tiles = document.querySelectorAll('[data-current-row]');
+                      tiles.forEach(tile => {
+                        classesToRemove.forEach(cls => tile.classList.remove(cls));
+                      });
+                      // Reset the gameboard for retry
+                      let resetTiles = [];
+                      for (let i = 0; i < this.state.maxRows; i++) {
+                        resetTiles.push([null, null, null, null]);
+                      }
+                      this.setState({
+                        showModal: false,
+                        guesses: 0,
+                        guessedWords: [],
+                        currentRow: 0,
+                        currentCol: 0,
+                        gameRowTiles: resetTiles,
+                        gameOver: false,
+                        shareText: '',
+                      });
+                    }}
+                  >
+                    Retry ({this.state.triesLeft} left today)
+                  </button>
+                )}
+                <button
+                  className="btn"
+                  style={{ marginLeft: '10px' }}
+                  onClick={() => this.setState({ showModal: false })}
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         )}

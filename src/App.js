@@ -5,6 +5,34 @@ import GameBoard from './GameBoard.js';
 import KeyBoard from './KeyBoard.js';
 
 class App extends React.Component {
+  // Helper to get today's key
+  getTodayKey() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today.toISOString().split('T')[0];
+  }
+
+  // Helper to get/set attempts for today
+  getAttemptsForToday() {
+    const todayKey = this.getTodayKey();
+    const attempts = JSON.parse(localStorage.getItem('dailyAttempts') || '{}');
+    return attempts[todayKey] || 0;
+  }
+
+  incrementAttemptsForToday() {
+    const todayKey = this.getTodayKey();
+    let attempts = JSON.parse(localStorage.getItem('dailyAttempts') || '{}');
+    attempts[todayKey] = (attempts[todayKey] || 0) + 1;
+    localStorage.setItem('dailyAttempts', JSON.stringify(attempts));
+    return attempts[todayKey];
+  }
+
+  resetAttemptsForToday() {
+    const todayKey = this.getTodayKey();
+    let attempts = JSON.parse(localStorage.getItem('dailyAttempts') || '{}');
+    attempts[todayKey] = 0;
+    localStorage.setItem('dailyAttempts', JSON.stringify(attempts));
+  }
   constructor(props) {
     super(props);
     this.handleSelectedLetter = this.handleSelectedLetter.bind(this);
@@ -16,7 +44,10 @@ class App extends React.Component {
       showModal: false, 
       showResultsButton: false ,
       userStats:    this.fetchUserStats() || [],
-      showHistory:  false
+      showHistory:  false,
+      showTriesModal: false,
+      triesMessage: '',
+      triesLeft: 3 - this.getAttemptsForToday(),
     };
 
     // either bind…
@@ -193,6 +224,14 @@ class App extends React.Component {
   }
 
   checkEntry() {
+    // Check if user has maxed out tries for today
+    if (this.getAttemptsForToday() >= 3) {
+      this.setState({
+        showTriesModal: true,
+        triesMessage: 'Sorry, you have reached the maximum of 3 tries for today. Please try again tomorrow.'
+      });
+      return;
+    }
     let currentRow = this.state.currentRow;
 
     let tiles = document.querySelectorAll(
@@ -210,6 +249,10 @@ class App extends React.Component {
         (playerWord === wordOfTheDay) && 
         (playerWord.length === this.state.maxCols)
       ) {
+
+      // Increment attempts for today
+      const tries = this.incrementAttemptsForToday();
+      this.setState({ triesLeft: 3 - tries });
 
       let newGuessedWords = [...guessedWords, playerWord];
       let newGuesses = guesses + 1;
@@ -271,6 +314,9 @@ class App extends React.Component {
 
     // If this was the last guess (loss), record the loss and show modal after tile animation
     if (guesses + 1 === this.state.maxRows && playerWord !== wordOfTheDay) {
+      // Increment attempts for today
+      const tries = this.incrementAttemptsForToday();
+      this.setState({ triesLeft: 3 - tries });
       this.saveUserStats(this.state.currentGame, false, guessedWords);
       setTimeout(() => {
         this.setState({
@@ -380,6 +426,16 @@ class App extends React.Component {
   }
 
   render() {
+        {/* TRIES MODAL */}
+        {this.state.showTriesModal && (
+          <div className="modal-overlay">
+            <div className="modal">
+              <h2>Limit Reached</h2>
+              <p>{this.state.triesMessage}</p>
+              <button onClick={() => this.setState({ showTriesModal: false })}>Close</button>
+            </div>
+          </div>
+        )}
     return (
       <div className="container">
         <header className="site-header">
@@ -401,15 +457,14 @@ class App extends React.Component {
                 <button onClick={this.handleShowHistory}>
                   View History
                 </button>
-                {/* Show Retry button only if last game was a loss and the board is not currently being played */}
+                {/* Show Retry button only if last game was a loss, the board is not currently being played, and tries remain */}
                 {(() => {
-                  // Show retry if last guess was a loss and the board is not in a win state and not in progress
                   const gw = this.state.guessedWords;
                   const lastGuess = gw[gw.length - 1];
                   const isLoss =
                     gw.length === this.state.maxRows &&
                     lastGuess !== this.state.pickedWord;
-                  if (isLoss) {
+                  if (isLoss && this.state.triesLeft > 0) {
                     return (
                       <button
                         style={{ marginLeft: '10px', background: '#4caf50', color: 'white' }}
@@ -437,7 +492,7 @@ class App extends React.Component {
                           });
                         }}
                       >
-                        Retry
+                        Retry ({this.state.triesLeft} left today)
                       </button>
                     );
                   }
@@ -462,17 +517,26 @@ class App extends React.Component {
           <div><div className="letter">guessed words: {this.state.guessedWords.join(',')}</div></div>
         </header>
 
-        <GameBoard
-          gameRows={this.state.gameRows}
-          gameRowTiles={this.state.gameRowTiles}
-        />
 
-        <KeyBoard
-          key1={this.state.keys1}
-          key2={this.state.keys2}
-          key3={this.state.keys3}
-          onSelectedLetter={this.handleSelectedLetter}
-        />
+        {this.state.triesLeft === 0 ? (
+          <div style={{textAlign: 'center', margin: '2em', fontSize: '1.3em', color: '#b71c1c'}}>
+            <strong>You maxed out your number of tries. Please try again tomorrow.</strong>
+          </div>
+        ) : (
+          <>
+            <GameBoard
+              gameRows={this.state.gameRows}
+              gameRowTiles={this.state.gameRowTiles}
+            />
+
+            <KeyBoard
+              key1={this.state.keys1}
+              key2={this.state.keys2}
+              key3={this.state.keys3}
+              onSelectedLetter={this.handleSelectedLetter}
+            />
+          </>
+        )}
 
         {/* RESULTS MODAL */}
         {this.state.showModal && (
@@ -515,34 +579,38 @@ class App extends React.Component {
                 Close
               </button>
               {this.state.guessedWords[this.state.guessedWords.length - 1] !== this.state.pickedWord && (
-                <button
-                  style={{ marginLeft: '10px', background: '#4caf50', color: 'white' }}
-                  onClick={() => {
-                    // Remove tile coloring classes from all tiles
-                    const classesToRemove = ['valid', 'invalid', 'close'];
-                    const tiles = document.querySelectorAll('[data-current-row]');
-                    tiles.forEach(tile => {
-                      classesToRemove.forEach(cls => tile.classList.remove(cls));
-                    });
-                    // Reset the gameboard for retry
-                    let resetTiles = [];
-                    for (let i = 0; i < this.state.maxRows; i++) {
-                      resetTiles.push([null, null, null, null]);
-                    }
-                    this.setState({
-                      showModal: false,
-                      guesses: 0,
-                      guessedWords: [],
-                      currentRow: 0,
-                      currentCol: 0,
-                      gameRowTiles: resetTiles,
-                      gameOver: false,
-                      shareText: '',
-                    });
-                  }}
-                >
-                  Retry
-                </button>
+                <>
+                  {this.state.triesLeft > 0 && (
+                    <button
+                      style={{ marginLeft: '10px', background: '#4caf50', color: 'white' }}
+                      onClick={() => {
+                        // Remove tile coloring classes from all tiles
+                        const classesToRemove = ['valid', 'invalid', 'close'];
+                        const tiles = document.querySelectorAll('[data-current-row]');
+                        tiles.forEach(tile => {
+                          classesToRemove.forEach(cls => tile.classList.remove(cls));
+                        });
+                        // Reset the gameboard for retry
+                        let resetTiles = [];
+                        for (let i = 0; i < this.state.maxRows; i++) {
+                          resetTiles.push([null, null, null, null]);
+                        }
+                        this.setState({
+                          showModal: false,
+                          guesses: 0,
+                          guessedWords: [],
+                          currentRow: 0,
+                          currentCol: 0,
+                          gameRowTiles: resetTiles,
+                          gameOver: false,
+                          shareText: '',
+                        });
+                      }}
+                    >
+                      Retry ({this.state.triesLeft} left today)
+                    </button>
+                  )}
+                </>
               )}
             </div>
           </div>

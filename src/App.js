@@ -131,28 +131,6 @@ class App extends React.Component {
 
     let currentCol = 0;
 
-    /*
-    this.state = {
-      words: words,
-      usedWords: usedWords,
-      pickedWord: pickedWord,
-      currentGame: currentGame,
-      keys1: keys1,
-      keys2: keys2,
-      keys3: keys3,
-      gameRows: gameRows,
-      guesses: guesses,
-      guessedWords: guessedWords,
-      currentRow: currentRow,
-      currentCol: currentCol,
-      gameRowTiles: gameRowTiles,
-      maxRows: maxRows,
-      maxCols: maxCols,
-      showModal: false,
-      showResultsButton: false,
-      shareText: '',
-    }
-      */
     Object.assign(this.state, {
         words:           words,
         usedWords:       usedWords,
@@ -175,22 +153,6 @@ class App extends React.Component {
         // <— note: we no longer clobber userStats or showHistory
       });
   }
-
-  /*
-  saveUserStats(gameId, won, guessedWords) {
-    let stat = {
-      gameId: gameId,
-      won: won, 
-      guessedWords: guessedWords
-    }
-
-    let userStats = this.fetchUserStats() != undefined ? this.fetchUserStats() : [];
-
-    userStats.push(stat);
-
-    localStorage.setItem('userStats', JSON.stringify(userStats));
-  }
-    */
 
   saveUserStats(gameId, won, guessedWords) {
     const stat = {

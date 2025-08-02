@@ -1,3 +1,21 @@
+/* Footer styles */
+.site-footer {
+  text-align: center;
+  padding: .25em 0 0.5em 0;
+  color: #bbb;
+  font-size: 1.1em;
+}
+
+.site-footer a {
+  color: #fff;
+  text-decoration: underline;
+  font-weight: bold;
+  transition: color 0.2s;
+}
+
+.site-footer a:hover {
+  color: #ffd600;
+}
 body {
   font-family: helvetica, arial, verdana; 
   font-size: 1em;
@@ -167,11 +185,15 @@ body {
   cursor: pointer;
 }
 
-.modal .history-list ul {
+.modal .history-list {
   list-style: none;
   padding: 0;
   margin: 0;
   line-height: 10px;
+}
+
+.modal .history-list li {
+  padding: 10px 0;
 }
 
 .btn {

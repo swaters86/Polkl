@@ -263,14 +263,28 @@ class App extends React.Component {
 
     // guessed word doesn't meet character length (less than number of columns/tiles available)
     } else if (playerWord.length !== this.state.maxCols) {
-
-    // TODO: verify if this should be tis.state.maxRows
-    } else if (guesses === this.state.maxCols) {
-      
+      // do nothing, incomplete word
+      return;
     }
 
-    guessedWords.push(playerWord); 
-      
+    guessedWords.push(playerWord);
+
+    // If this was the last guess (loss), record the loss and show modal
+    if (guesses + 1 === this.state.maxRows && playerWord !== wordOfTheDay) {
+      this.saveUserStats(this.state.currentGame, false, guessedWords);
+      this.setState({
+        guesses: guesses + 1,
+        currentRow: currentRow + 1,
+        currentCol: 0,
+        guessedWords: guessedWords,
+        gameOver: true,
+        showModal: true,
+        showResultsButton: true,
+        shareText: this.generateShareText(guessedWords, wordOfTheDay, this.state.maxCols),
+      });
+      return;
+    }
+
     this.setState({
       guesses: guesses + 1, 
       currentRow: currentRow + 1, 
@@ -417,8 +431,17 @@ class App extends React.Component {
         {this.state.showModal && (
           <div className="modal-overlay">
             <div className="modal">
-              <h2>Congratulations!</h2>
-              <p>You guessed today's word!</p>
+              {this.state.guessedWords[this.state.guessedWords.length - 1] === this.state.pickedWord ? (
+                <>
+                  <h2>Congratulations!</h2>
+                  <p>You guessed today's word!</p>
+                </>
+              ) : (
+                <>
+                  <h2>Sorry!</h2>
+                  <p>Sorry you didn't guess today's word, but you can try again.</p>
+                </>
+              )}
               <textarea
                 readOnly
                 value={this.state.shareText}
@@ -444,6 +467,36 @@ class App extends React.Component {
               >
                 Close
               </button>
+              {this.state.guessedWords[this.state.guessedWords.length - 1] !== this.state.pickedWord && (
+                <button
+                  style={{ marginLeft: '10px', background: '#4caf50', color: 'white' }}
+                  onClick={() => {
+                    // Remove tile coloring classes from all tiles
+                    const classesToRemove = ['valid', 'invalid', 'close'];
+                    const tiles = document.querySelectorAll('[data-current-row]');
+                    tiles.forEach(tile => {
+                      classesToRemove.forEach(cls => tile.classList.remove(cls));
+                    });
+                    // Reset the gameboard for retry
+                    let resetTiles = [];
+                    for (let i = 0; i < this.state.maxRows; i++) {
+                      resetTiles.push([null, null, null, null]);
+                    }
+                    this.setState({
+                      showModal: false,
+                      guesses: 0,
+                      guessedWords: [],
+                      currentRow: 0,
+                      currentCol: 0,
+                      gameRowTiles: resetTiles,
+                      gameOver: false,
+                      shareText: '',
+                    });
+                  }}
+                >
+                  Retry
+                </button>
+              )}
             </div>
           </div>
         )}

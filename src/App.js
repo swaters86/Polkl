@@ -58,8 +58,18 @@ class App extends React.Component {
     this.handleHideHistory = this.handleHideHistory.bind(this);
   
     // Static start date for the game series
-    const staticStartDate = '2025-08-02'; // MM-DD-YYYY (8/2/25)
-    const words = ['loud', 'coke', 'test', 'deer'];
+    const staticStartDate = '2025-08-02'; // MM
+    // -DD-YYYY (8/2/25)
+    const words = [
+    'judd','dirt','meth','deer','luck','shot','hawk','moss','mold','joan','rule','bass','zany','beat','seat','shit','nala','hype','tide','deal','root','drum','slug','town','jump','save','spun',
+    'bump','palm','show','ibis','twin','coot','zone','bank','real','crab','just','heat','wide','crow','rack','camp','snap','ride','jolt','lawn','turf','gulf',
+    'fist','dove','life','play','told','mole','yard','golf','feed','flee','lane','ward','mock','fate','fish','coal','tale','wood','rest','hart',
+    'dawn','lure','view','sail','road','dome','tuna','glow','lump','reef','jazz','bowl','beam','city','flap','king','mild','fart','wave',
+    'cash','love','frog','tire','many','bale','gait','wine','hive','fire','edge','rave','gave','sand','rudy','list','kind',
+    'loan','cast','nest','gate','post','pure','safe','jive','wild','hike','haze','rude','gear','yarn','gems','name','fade',
+    'bail','muck','fine','mark','gang','port','fair','hope','high','part','made','park','keen','trip','ramp','wolf','cold','fawn',
+    'rank','code','coming','swan','pool'
+    ];
 
     // Generate a static mapping of dates to words based on the static start date and word list
     function getGamesListFromWords(startDate, wordsArr) {
@@ -392,6 +402,7 @@ class App extends React.Component {
       <div className="container">
         <header className="site-header">
           <h1 className="site-name">Polkl</h1>
+          <h4>(POH-kul)</h4>
           <p>A wordle-like game about Polk County, FL - home to the finest of Floridians!</p>
 
           {this.state.showResultsButton && !this.state.showModal && (

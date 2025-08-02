@@ -522,6 +522,10 @@ class App extends React.Component {
           <div style={{textAlign: 'center', margin: '2em', fontSize: '1.3em', color: '#b71c1c'}}>
             <strong>You maxed out your number of tries. Please try again tomorrow.</strong>
           </div>
+        ) : this.state.guessedWords[this.state.guessedWords.length - 1] === this.state.pickedWord ? (
+          <div style={{textAlign: 'center', margin: '2em', fontSize: '1.3em', color: '#388e3c'}}>
+            <strong>Congratulations! You solved today's word. Please come back tomorrow for a new game.</strong>
+          </div>
         ) : (
           <>
             <GameBoard

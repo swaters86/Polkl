@@ -269,19 +269,21 @@ class App extends React.Component {
 
     guessedWords.push(playerWord);
 
-    // If this was the last guess (loss), record the loss and show modal
+    // If this was the last guess (loss), record the loss and show modal after tile animation
     if (guesses + 1 === this.state.maxRows && playerWord !== wordOfTheDay) {
       this.saveUserStats(this.state.currentGame, false, guessedWords);
-      this.setState({
-        guesses: guesses + 1,
-        currentRow: currentRow + 1,
-        currentCol: 0,
-        guessedWords: guessedWords,
-        gameOver: true,
-        showModal: true,
-        showResultsButton: true,
-        shareText: this.generateShareText(guessedWords, wordOfTheDay, this.state.maxCols),
-      });
+      setTimeout(() => {
+        this.setState({
+          guesses: guesses + 1,
+          currentRow: currentRow + 1,
+          currentCol: 0,
+          guessedWords: guessedWords,
+          gameOver: true,
+          showModal: true,
+          showResultsButton: true,
+          shareText: this.generateShareText(guessedWords, wordOfTheDay, this.state.maxCols),
+        });
+      }, tiles.length * 650);
       return;
     }
 

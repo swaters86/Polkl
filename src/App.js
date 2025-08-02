@@ -392,14 +392,59 @@ class App extends React.Component {
             </button>
           )}
 
+
           {/* only once any results exist, and when no other modal is open */}
-          {this.state.userStats.length > 0 && 
-          !this.state.showModal && 
-          !this.state.showHistory && (
-            <button onClick={this.handleShowHistory}>
-              View History
-            </button>
-          )}
+          {this.state.userStats.length > 0 &&
+            !this.state.showModal &&
+            !this.state.showHistory && (
+              <>
+                <button onClick={this.handleShowHistory}>
+                  View History
+                </button>
+                {/* Show Retry button only if last game was a loss and the board is not currently being played */}
+                {(() => {
+                  // Show retry if last guess was a loss and the board is not in a win state and not in progress
+                  const gw = this.state.guessedWords;
+                  const lastGuess = gw[gw.length - 1];
+                  const isLoss =
+                    gw.length === this.state.maxRows &&
+                    lastGuess !== this.state.pickedWord;
+                  if (isLoss) {
+                    return (
+                      <button
+                        style={{ marginLeft: '10px', background: '#4caf50', color: 'white' }}
+                        onClick={() => {
+                          // Remove tile coloring classes from all tiles
+                          const classesToRemove = ['valid', 'invalid', 'close'];
+                          const tiles = document.querySelectorAll('[data-current-row]');
+                          tiles.forEach(tile => {
+                            classesToRemove.forEach(cls => tile.classList.remove(cls));
+                          });
+                          // Reset the gameboard for retry
+                          let resetTiles = [];
+                          for (let i = 0; i < this.state.maxRows; i++) {
+                            resetTiles.push([null, null, null, null]);
+                          }
+                          this.setState({
+                            showModal: false,
+                            guesses: 0,
+                            guessedWords: [],
+                            currentRow: 0,
+                            currentCol: 0,
+                            gameRowTiles: resetTiles,
+                            gameOver: false,
+                            shareText: '',
+                          });
+                        }}
+                      >
+                        Retry
+                      </button>
+                    );
+                  }
+                  return null;
+                })()}
+              </>
+            )}
 
 
           <div><div className="letter">Word of the Day: </div>{this.state.pickedWord}</div>

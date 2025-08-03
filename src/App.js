@@ -482,7 +482,12 @@ class App extends React.Component {
     return (
       <div className="container">
         <header className="site-header">
-          <h1 className="site-name">Polkl</h1>
+          <div className="site-name" style={{display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '0.2em'}}>
+            <div className="game-row-tile valid"><div className="game-row-tile-inner"><div className="front"><div className="letter">P</div></div><div className="back"><div className="letter">P</div></div></div></div>
+            <div className="game-row-tile close"><div className="game-row-tile-inner"><div className="front"><div className="letter">o</div></div><div className="back"><div className="letter">o</div></div></div></div>
+            <div className="game-row-tile invalid"><div className="game-row-tile-inner"><div className="front"><div className="letter">k</div></div><div className="back"><div className="letter">k</div></div></div></div>
+            <div className="game-row-tile"><div className="game-row-tile-inner"><div className="front"><div className="letter">l</div></div><div className="back"><div className="letter">l</div></div></div></div>
+          </div>
           <span>(POH-kul)</span>
           <p>A wordle-like game about Polk County, FL - home to the finest of Floridians!</p>
 
@@ -709,9 +714,11 @@ class App extends React.Component {
             </div>
           </div>
         )}
+        {/* Footer 
         <footer className="site-footer">
           <p>Made in Florida by <a href="https://stevenwaters.com">Steven Waters</a></p>
         </footer>
+        */}
       </div>
     );
   }

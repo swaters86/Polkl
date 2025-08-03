@@ -80,8 +80,10 @@ body {
 }
 
 .site-header {
+  margin-top:20px;
   text-align: center;
   padding: 2px 0;
+  
 }
 
 .site-header span {
@@ -98,7 +100,7 @@ body {
 }
 
 .site-name {
-  font-size:  3em;
+  font-size:  1em;
 }
 
 .keyboard {

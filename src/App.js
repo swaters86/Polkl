@@ -286,6 +286,12 @@ class App extends React.Component {
           showResultsButton: true,
           shareText: shareText,
           keyStatus: keyStatus,
+          lastResult: {
+            won: true,
+            guessedWords: newGuessedWords,
+            word: wordOfTheDay,
+            gameId: this.state.currentGame
+          }
         });
       }, tiles.length * 650);
 
@@ -366,6 +372,12 @@ class App extends React.Component {
           showModal: true,
           showResultsButton: true,
           shareText: this.generateShareText(guessedWords, wordOfTheDay, this.state.maxCols),
+          lastResult: {
+            won: false,
+            guessedWords: [...guessedWords],
+            word: wordOfTheDay,
+            gameId: this.state.currentGame
+          }
         });
       }, tiles.length * 650);
       return;
@@ -468,6 +480,10 @@ class App extends React.Component {
   }
 
   render() {
+    const lastResult = this.state.lastResult;
+    return (
+      <div className="container">
+        <div>
         {/* TRIES MODAL */}
         {this.state.showTriesModal && (
           <div className="modal-overlay">
@@ -478,8 +494,7 @@ class App extends React.Component {
             </div>
           </div>
         )}
-    return (
-      <div className="container">
+        </div>
         <header className="site-header">
           <div className="site-name" style={{display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '0.2em'}}>
             <div className="game-row-tile valid"><div className="game-row-tile-inner"><div className="front"><div className="letter">P</div></div><div className="back"><div className="letter">P</div></div></div></div>
@@ -579,35 +594,30 @@ class App extends React.Component {
         )}
 
         {/* RESULTS MODAL */}
-        {this.state.showModal && (
+        {this.state.showModal && lastResult && (
           <div className="modal-overlay">
             <div className="modal">
-              {(() => {
-                // Always show results, even after closing and reopening
-                const lastGuessed = this.state.guessedWords[this.state.guessedWords.length - 1];
-                const isWin = lastGuessed === this.state.pickedWord;
-                return isWin ? (
-                  <>
-                    <h2>Congratulations!</h2>
-                    <p>You guessed today's word!</p>
-                  </>
-                ) : (
-                  <>
-                    <h2>Sorry!</h2>
-                    <p>Sorry you didn't guess today's word, but you can try again.</p>
-                  </>
-                );
-              })()}
+              {lastResult.won ? (
+                <>
+                  <h2>Congratulations!</h2>
+                  <p>You guessed today's word!</p>
+                </>
+              ) : (
+                <>
+                  <h2>Sorry!</h2>
+                  <p>Sorry you didn't guess today's word, but you can try again.</p>
+                </>
+              )}
               <textarea
                 readOnly
-                value={this.state.shareText}
+                value={this.generateShareText(lastResult.guessedWords, lastResult.word, this.state.maxCols)}
                 style={{ width: '100%', height: '80px' }}
               />
               <div style={{ marginTop: '18px' }}>
                 <button
                   className="btn"
                   onClick={() => {
-                    navigator.clipboard.writeText(this.state.shareText);
+                    navigator.clipboard.writeText(this.generateShareText(lastResult.guessedWords, lastResult.word, this.state.maxCols));
                     alert('Copied to clipboard!');
                   }}
                 >
@@ -615,12 +625,12 @@ class App extends React.Component {
                 </button>
                 <a
                   className="btn"
-                  href={`sms:&body=${encodeURIComponent(this.state.shareText)}`}
+                  href={`sms:&body=${encodeURIComponent(this.generateShareText(lastResult.guessedWords, lastResult.word, this.state.maxCols))}`}
                   style={{ marginLeft: '10px' }}
                 >
                   Share via SMS
                 </a>
-                {this.state.guessedWords[this.state.guessedWords.length - 1] !== this.state.pickedWord && this.state.triesLeft > 0 && (
+                {!lastResult.won && this.state.triesLeft > 0 && (
                   <button
                     className="btn"
                     style={{ marginLeft: '10px', background: '#4caf50', color: 'white' }}

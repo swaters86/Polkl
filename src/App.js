@@ -5,6 +5,14 @@ import GameBoard from './GameBoard.js';
 import KeyBoard from './KeyBoard.js';
 
 class App extends React.Component {
+  // Helper to get the best status for a letter
+  getBestStatusForLetter(letter, keyStatus) {
+    // Priority: valid > close > invalid > undefined
+    if (keyStatus[letter] === 'valid') return 'valid';
+    if (keyStatus[letter] === 'close') return 'close';
+    if (keyStatus[letter] === 'invalid') return 'invalid';
+    return undefined;
+  }
   // Helper to check if user has already won today
   hasWonToday() {
     const todayKey = this.getTodayKey();
@@ -261,6 +269,12 @@ class App extends React.Component {
         }, i * 650);
       });
 
+      // Update keyboard status for all letters in the guess
+      let keyStatus = { ...(this.state.keyStatus || {}) };
+      for (let i = 0; i < playerWord.length; i++) {
+        keyStatus[playerWord[i]] = 'valid';
+      }
+
       // Show modal after last tile flips
       setTimeout(() => {
         const shareText = this.generateShareText(newGuessedWords, wordOfTheDay, this.state.maxCols);
@@ -272,6 +286,7 @@ class App extends React.Component {
           showModal: true,
           showResultsButton: true,
           shareText: shareText,
+          keyStatus: keyStatus,
         });
       }, tiles.length * 650);
 
@@ -279,27 +294,54 @@ class App extends React.Component {
       
     // If guessed word != the word of the day but still meets character length (still valid guess)
     } else if (
-      (playerWord !== wordOfTheDay) && 
+      (playerWord !== wordOfTheDay) &&
       (playerWord.length === this.state.maxCols)
     ) {
-      tiles.forEach((tile, i) => {
-          let cssClass = '';
+      // Wordle-style coloring logic (two-pass, handles duplicates)
+      let guessArr = playerWord.split('');
+      let wordArr = wordOfTheDay.split('');
+      let status = Array(this.state.maxCols).fill('invalid'); // gray by default
+      let used = Array(this.state.maxCols).fill(false);
 
-          let wordOfTheDayArray = wordOfTheDay.split('');
-          let letterEntry = wordOfTheDayArray[Number(tile.dataset.currentCol) - 1];
-
-          if (letterEntry === tile.dataset.currentLetter) {
-            cssClass = 'valid';
-          } else if (letterEntry !== tile.dataset.currentLetter && !wordOfTheDayArray.includes(`${tile.dataset.currentLetter}`)) {
-            cssClass = 'invalid';
-          } else if (wordOfTheDayArray.includes(`${tile.dataset.currentLetter}`)) {
-            cssClass = 'close';
+      // First pass: correct position (green)
+      for (let i = 0; i < this.state.maxCols; i++) {
+        if (guessArr[i] === wordArr[i]) {
+          status[i] = 'valid'; // green
+          used[i] = true;
+        }
+      }
+      // Second pass: correct letter, wrong position (yellow)
+      for (let i = 0; i < this.state.maxCols; i++) {
+        if (status[i] === 'valid') continue;
+        for (let j = 0; j < this.state.maxCols; j++) {
+          if (!used[j] && guessArr[i] === wordArr[j]) {
+            status[i] = 'close'; // yellow
+            used[j] = true;
+            break;
           }
-
-          setTimeout(function() {
-            tile.classList.add(cssClass)
-          }, i * 650);
+        }
+      }
+      // Apply classes to tiles
+      tiles.forEach((tile, i) => {
+        setTimeout(function() {
+          tile.classList.add(status[i]);
+        }, i * 650);
       });
+
+      // Update keyboard status for all letters in the guess
+      let keyStatus = { ...(this.state.keyStatus || {}) };
+      for (let i = 0; i < guessArr.length; i++) {
+        const letter = guessArr[i];
+        // Only upgrade status, never downgrade (valid > close > invalid)
+        if (status[i] === 'valid') {
+          keyStatus[letter] = 'valid';
+        } else if (status[i] === 'close') {
+          if (keyStatus[letter] !== 'valid') keyStatus[letter] = 'close';
+        } else if (status[i] === 'invalid') {
+          if (!keyStatus[letter]) keyStatus[letter] = 'invalid';
+        }
+      }
+      this.setState({ keyStatus });
 
     // guessed word doesn't meet character length (less than number of columns/tiles available)
     } else if (playerWord.length !== this.state.maxCols) {
@@ -540,6 +582,7 @@ class App extends React.Component {
               key2={this.state.keys2}
               key3={this.state.keys3}
               onSelectedLetter={this.handleSelectedLetter}
+              keyStatus={this.state.keyStatus || {}}
             />
           </>
         )}

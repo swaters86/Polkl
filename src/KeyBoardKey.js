@@ -22,8 +22,12 @@ class KeyBoardKey extends React.Component {
     }
     
     render() {
+        let className = 'keyboard-key';
+        if (this.props.status) {
+            className += ' ' + this.props.status;
+        }
         return (
-            <button className="keyboard-key" onClick={(e) => this.handleSelectedLetter(e)} data-key-value={this.props.keyValue}>
+            <button className={className} onClick={(e) => this.handleSelectedLetter(e)} data-key-value={this.props.keyValue}>
                 {this.props.keyValue}
             </button>
         )

@@ -5,6 +5,22 @@ import GameBoard from './GameBoard.js';
 import KeyBoard from './KeyBoard.js';
 
 class App extends React.Component {
+  // Helper to check if user has already won today
+  hasWonToday() {
+    const todayKey = this.getTodayKey();
+    const userStats = JSON.parse(localStorage.getItem('userStats') || '[]');
+    return userStats.some(stat => stat.word && stat.word === this.state.pickedWord && stat.won);
+  }
+
+  // Helper to check if user has lost 3 times today
+  hasMaxLossesToday() {
+    const todayKey = this.getTodayKey();
+    const attempts = JSON.parse(localStorage.getItem('dailyAttempts') || '{}');
+    // If 3 attempts and no win for today, it's maxed out
+    const userStats = JSON.parse(localStorage.getItem('userStats') || '[]');
+    const wonToday = userStats.some(stat => stat.word && stat.word === this.state.pickedWord && stat.won);
+    return (attempts[todayKey] >= 3) && !wonToday;
+  }
   // Helper to get today's key
   getTodayKey() {
     const today = new Date();
@@ -141,27 +157,39 @@ class App extends React.Component {
 
     let currentCol = 0;
 
+    // Determine if user already won or maxed out losses for today
+    let alreadyWon = false;
+    let maxedLosses = false;
+    try {
+      const userStats = JSON.parse(localStorage.getItem('userStats') || '[]');
+      alreadyWon = userStats.some(stat => stat.word && stat.word === pickedWord && stat.won);
+      const attempts = JSON.parse(localStorage.getItem('dailyAttempts') || '{}');
+      maxedLosses = (attempts[todayKey] >= 3) && !alreadyWon;
+    } catch (e) {}
+
     Object.assign(this.state, {
-        words:           words,
-        usedWords:       usedWords,
-        pickedWord:      pickedWord,
-        currentGame:     currentGame,
-        keys1:           keys1,
-        keys2:           keys2,
-        keys3:           keys3,
-        gameRows:        gameRows,
-        guesses:         guesses,
-        guessedWords:    guessedWords,
-        currentRow:      currentRow,
-        currentCol:      currentCol,
-        gameRowTiles:    gameRowTiles,
-        maxRows:         maxRows,
-        maxCols:         maxCols,
-        showModal:       false,
-        showResultsButton: false,
-        shareText:       '',
-        // <— note: we no longer clobber userStats or showHistory
-      });
+      words:           words,
+      usedWords:       usedWords,
+      pickedWord:      pickedWord,
+      currentGame:     currentGame,
+      keys1:           keys1,
+      keys2:           keys2,
+      keys3:           keys3,
+      gameRows:        gameRows,
+      guesses:         guesses,
+      guessedWords:    guessedWords,
+      currentRow:      currentRow,
+      currentCol:      currentCol,
+      gameRowTiles:    gameRowTiles,
+      maxRows:         maxRows,
+      maxCols:         maxCols,
+      showModal:       false,
+      showResultsButton: false,
+      shareText:       '',
+      // <— note: we no longer clobber userStats or showHistory
+      alreadyWon: alreadyWon,
+      maxedLosses: maxedLosses,
+    });
   }
 
   saveUserStats(gameId, won, guessedWords) {
@@ -186,8 +214,15 @@ class App extends React.Component {
   }
 
   checkEntry() {
-    // Check if user has maxed out tries for today
-    if (this.getAttemptsForToday() >= 3) {
+    // Prevent play if already won or maxed out losses
+    if (this.state.alreadyWon) {
+      this.setState({
+        showTriesModal: true,
+        triesMessage: "You've already solved today's word! Come back tomorrow."
+      });
+      return;
+    }
+    if (this.state.maxedLosses || this.getAttemptsForToday() >= 3) {
       this.setState({
         showTriesModal: true,
         triesMessage: 'Sorry, you have reached the maximum of 3 tries for today. Please try again tomorrow.'
@@ -306,6 +341,10 @@ class App extends React.Component {
   } // checkEntry();
 
   handleSelectedLetter(selectedLetter) {
+    // Prevent input if already won or maxed out losses
+    if (this.state.alreadyWon || this.state.maxedLosses) {
+      return;
+    }
     let gameRowTiles = this.state.gameRowTiles;
     let nextCol = this.state.currentCol;
     let enterKey = this.state.keys3[0];
@@ -481,13 +520,13 @@ class App extends React.Component {
           */}
         </header>
 
-        {this.state.triesLeft === 0 ? (
-          <div style={{textAlign: 'center', margin: '2em', fontSize: '1.3em', color: '#b71c1c'}}>
-            <strong>You maxed out your number of tries. Please try again tomorrow.</strong>
-          </div>
-        ) : this.state.guessedWords[this.state.guessedWords.length - 1] === this.state.pickedWord ? (
+        {(this.state.alreadyWon) ? (
           <div style={{textAlign: 'center', margin: '2em', fontSize: '1.3em', color: '#388e3c'}}>
             <strong>Congratulations! You solved today's word. Please come back tomorrow for a new game.</strong>
+          </div>
+        ) : (this.state.maxedLosses || this.state.triesLeft === 0) ? (
+          <div style={{textAlign: 'center', margin: '2em', fontSize: '1.3em', color: '#b71c1c'}}>
+            <strong>You maxed out your number of tries. Please try again tomorrow.</strong>
           </div>
         ) : (
           <>

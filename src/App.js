@@ -5,6 +5,10 @@ import GameBoard from './GameBoard.js';
 import KeyBoard from './KeyBoard.js';
 
 class App extends React.Component {
+  componentDidMount() {
+    // Show welcome modal on load
+    this.setState({ showWelcomeModal: true });
+  }
   // Helper to get the best status for a letter
   getBestStatusForLetter(letter, keyStatus) {
     // Priority: valid > close > invalid > undefined
@@ -71,6 +75,7 @@ class App extends React.Component {
       showTriesModal: false,
       triesMessage: '',
       triesLeft: 3 - this.getAttemptsForToday(),
+      showWelcomeModal: true,
     };
 
     // either bind…
@@ -481,8 +486,26 @@ class App extends React.Component {
 
   render() {
     const lastResult = this.state.lastResult;
+
     return (
       <div className="container">
+        {/* WELCOME MODAL */}
+        {this.state.showWelcomeModal && (
+          <div className="modal-overlay">
+            <div className="modal">
+              <div className="headline-tiles">
+                <div className="headline-game-row-tile green">P</div>
+                <div className="headline-game-row-tile yellow">o</div>
+                <div className="headline-game-row-tile grey">l</div>
+                <div className="headline-game-row-tile red">k</div>
+                <div className="headline-game-row-tile yellow">l</div>
+              </div>
+              <span>(POH-kul)</span>
+              <p>A wordle-like game about Polk County, FL - home to the finest of Floridians!</p>
+              <button className="btn" style={{marginTop: '18px'}} onClick={() => this.setState({ showWelcomeModal: false })}>Start Game</button>
+            </div>
+          </div>
+        )}
         <div>
         {/* TRIES MODAL */}
         {this.state.showTriesModal && (
@@ -496,16 +519,7 @@ class App extends React.Component {
         )}
         </div>
         <header className="site-header">
-          <div className="site-name" style={{display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '0.2em'}}>
-            <div className="game-row-tile valid"><div className="game-row-tile-inner"><div className="front"><div className="letter">P</div></div><div className="back"><div className="letter">P</div></div></div></div>
-            <div className="game-row-tile close"><div className="game-row-tile-inner"><div className="front"><div className="letter">o</div></div><div className="back"><div className="letter">o</div></div></div></div>
-            <div className="game-row-tile"><div className="game-row-tile-inner"><div className="front"><div className="letter">l</div></div><div className="back"><div className="letter">l</div></div></div></div>
-            <div className="game-row-tile invalid"><div className="game-row-tile-inner"><div className="front"><div className="letter">k</div></div><div className="back"><div className="letter">k</div></div></div></div>
-            <div className="game-row-tile close"><div className="game-row-tile-inner"><div className="front"><div className="letter">l</div></div><div className="back"><div className="letter">l</div></div></div></div>
-          </div>
-          <span>(POH-kul)</span>
-          <p>A wordle-like game about Polk County, FL - home to the finest of Floridians!</p>
-
+          {/* Header is now empty, content moved to welcome modal */}
           {this.state.showResultsButton && !this.state.showModal && (
             <button className="btn" onClick={this.handleShowModal}>
               Results

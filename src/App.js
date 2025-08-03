@@ -15,7 +15,6 @@ class App extends React.Component {
   }
   // Helper to check if user has already won today
   hasWonToday() {
-    const todayKey = this.getTodayKey();
     const userStats = JSON.parse(localStorage.getItem('userStats') || '[]');
     return userStats.some(stat => stat.word && stat.word === this.state.pickedWord && stat.won);
   }
@@ -82,7 +81,7 @@ class App extends React.Component {
     this.handleHideHistory = this.handleHideHistory.bind(this);
   
     // Static start date for the game series
-    const staticStartDate = '2025-08-02'; // MM
+    const staticStartDate = '2025-08-03'; // MM
     // -DD-YYYY (8/2/25)
     const words = [
     'judd','dirt','meth','deer','luck','shot','hawk','moss','mold','joan','rule','bass','zany','beat','seat','shit','nala','hype','tide','deal','root','drum','slug','town','jump','save','spun',
@@ -549,22 +548,6 @@ class App extends React.Component {
                 })()}
               </>
             )}
-
-          {/*
-          <div><div className="letter">Word of the Day: </div>{this.state.pickedWord}</div>
-          <div>
-            <div className="letter">Guesed word: </div>
-            {
-              this.state.currentRow < this.state.gameRowTiles.length &&
-              this.state.gameRowTiles[this.state.currentRow]
-                ? this.state.gameRowTiles[this.state.currentRow].join('')
-                : ''
-            }
-          </div>
-          <div><div className="letter">Current Game</div> {this.state.currentGame}</div>
-          <div><div className="letter">Guesses:</div> {this.state.guesses}</div>
-          <div><div className="letter">Guessed Words: {this.state.guessedWords.join(',')}</div></div>
-          */}
         </header>
 
         {(this.state.alreadyWon) ? (

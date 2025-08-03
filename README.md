@@ -21,3 +21,21 @@ maxing out guests causes the board to go blank when displaying the guest word
 it's possible to make guess without completing all of the letters 
 it's possible to random enter in 4 letters . need to check against a master list of 4 letter words.
 it's possible to start entering letters while an entry is being checked 
+
+
+# Code to use to show game progress
+          {/*
+          <div><div className="letter">Word of the Day: </div>{this.state.pickedWord}</div>
+          <div>
+            <div className="letter">Guesed word: </div>
+            {
+              this.state.currentRow < this.state.gameRowTiles.length &&
+              this.state.gameRowTiles[this.state.currentRow]
+                ? this.state.gameRowTiles[this.state.currentRow].join('')
+                : ''
+            }
+          </div>
+          <div><div className="letter">Current Game</div> {this.state.currentGame}</div>
+          <div><div className="letter">Guesses:</div> {this.state.guesses}</div>
+          <div><div className="letter">Guessed Words: {this.state.guessedWords.join(',')}</div></div>
+          */}

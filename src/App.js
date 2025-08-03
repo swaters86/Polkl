@@ -484,8 +484,9 @@ class App extends React.Component {
           <div className="site-name" style={{display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '0.2em'}}>
             <div className="game-row-tile valid"><div className="game-row-tile-inner"><div className="front"><div className="letter">P</div></div><div className="back"><div className="letter">P</div></div></div></div>
             <div className="game-row-tile close"><div className="game-row-tile-inner"><div className="front"><div className="letter">o</div></div><div className="back"><div className="letter">o</div></div></div></div>
-            <div className="game-row-tile invalid"><div className="game-row-tile-inner"><div className="front"><div className="letter">k</div></div><div className="back"><div className="letter">k</div></div></div></div>
             <div className="game-row-tile"><div className="game-row-tile-inner"><div className="front"><div className="letter">l</div></div><div className="back"><div className="letter">l</div></div></div></div>
+            <div className="game-row-tile invalid"><div className="game-row-tile-inner"><div className="front"><div className="letter">k</div></div><div className="back"><div className="letter">k</div></div></div></div>
+            <div className="game-row-tile close"><div className="game-row-tile-inner"><div className="front"><div className="letter">l</div></div><div className="back"><div className="letter">l</div></div></div></div>
           </div>
           <span>(POH-kul)</span>
           <p>A wordle-like game about Polk County, FL - home to the finest of Floridians!</p>
@@ -499,55 +500,55 @@ class App extends React.Component {
           {/* only once any results exist, and when no other modal is open */}
           {this.state.userStats.length > 0 &&
             !this.state.showModal &&
-            !this.state.showHistory && (
-              <>
-                <button className="btn" onClick={this.handleShowHistory}>
-                  View History
-                </button>
-                {/* Show Retry button only if last game was a loss, the board is not currently being played, and tries remain */}
-                {(() => {
-                  const gw = this.state.guessedWords;
-                  const lastGuess = gw[gw.length - 1];
-                  const isLoss =
-                    gw.length === this.state.maxRows &&
-                    lastGuess !== this.state.pickedWord;
-                  if (isLoss && this.state.triesLeft > 0) {
-                    return (
-                      <button
-                        className="btn"
-                        style={{ marginLeft: '10px', background: '#4caf50', color: 'white' }}
-                        onClick={() => {
-                          // Remove tile coloring classes from all tiles
-                          const classesToRemove = ['valid', 'invalid', 'close'];
-                          const tiles = document.querySelectorAll('[data-current-row]');
-                          tiles.forEach(tile => {
-                            classesToRemove.forEach(cls => tile.classList.remove(cls));
-                          });
-                          // Reset the gameboard for retry
-                          let resetTiles = [];
-                          for (let i = 0; i < this.state.maxRows; i++) {
-                            resetTiles.push([null, null, null, null]);
-                          }
-                          this.setState({
-                            showModal: false,
-                            guesses: 0,
-                            guessedWords: [],
-                            currentRow: 0,
-                            currentCol: 0,
-                            gameRowTiles: resetTiles,
-                            gameOver: false,
-                            shareText: '',
-                          });
-                        }}
-                      >
-                        Retry ({this.state.triesLeft} left today)
-                      </button>
-                    );
-                  }
-                  return null;
-                })()}
-              </>
-            )}
+            !this.state.showHistory &&
+            <>
+              <button className="btn" onClick={this.handleShowHistory}>
+                View History
+              </button>
+              {/* Show Retry button only if last game was a loss, the board is not currently being played, and tries remain */}
+              {(() => {
+                const gw = this.state.guessedWords;
+                const lastGuess = gw[gw.length - 1];
+                const isLoss =
+                  gw.length === this.state.maxRows &&
+                  lastGuess !== this.state.pickedWord;
+                if (isLoss && this.state.triesLeft > 0) {
+                  return (
+                    <button
+                      className="btn"
+                      style={{ marginLeft: '10px', background: '#4caf50', color: 'white' }}
+                      onClick={() => {
+                        // Remove tile coloring classes from all tiles
+                        const classesToRemove = ['valid', 'invalid', 'close'];
+                        const tiles = document.querySelectorAll('[data-current-row]');
+                        tiles.forEach(tile => {
+                          classesToRemove.forEach(cls => tile.classList.remove(cls));
+                        });
+                        // Reset the gameboard for retry
+                        let resetTiles = [];
+                        for (let i = 0; i < this.state.maxRows; i++) {
+                          resetTiles.push([null, null, null, null]);
+                        }
+                        this.setState({
+                          showModal: false,
+                          guesses: 0,
+                          guessedWords: [],
+                          currentRow: 0,
+                          currentCol: 0,
+                          gameRowTiles: resetTiles,
+                          gameOver: false,
+                          shareText: '',
+                        });
+                      }}
+                    >
+                      Retry ({this.state.triesLeft} left today)
+                    </button>
+                  );
+                }
+                return null;
+              })()}
+            </>
+          }
         </header>
 
         {(this.state.alreadyWon) ? (
